@@ -1,0 +1,120 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+        <title>Simple website</title>
+        <style>
+            .column {
+                padding: 15px;
+                border: 1px solid #ccc;
+                background-color: #f9f9f9;
+            }
+            .card {
+                margin-bottom: 15px;
+                padding: 10px;
+                background-color: #fff;
+                border: 10px solid #ddd;
+            }
+            .separate-button {
+                margin-top: 15px; /* Puedes ajustar este valor según tu preferencia */
+            }
+            .column .card {
+                margin-bottom: 20px; /* Ajusta este valor según tus preferencias */
+            }
+        </style>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </head>
+    <body>
+        <h1>Trello</h1>
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="column">
+                        <h4>Backlog</h4>
+                        <div class="card-list">
+                            <!-- Tarjetas se agregarán aquí -->
+                        </div>
+                        <button type="button" class="btn btn-dark separate-button">Dark</button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="column">
+                        <h4>To Do</h4>
+                        <div class="card-list">
+                            <!-- Tarjetas se agregarán aquí -->
+                        </div>
+                        <button type="button" class="btn btn-dark separate-button">Dark</button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="column">
+                        <h4>Done</h4>
+                        <div class="card-list">
+                            <!-- Tarjetas se agregarán aquí -->
+                        </div>
+                        <button type="button" class="btn btn-dark separate-button">Dark</button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="column">
+                        <h4>Blocked</h4>
+                        <div class="card-list">
+                            <!-- Tarjetas se agregarán aquí -->
+                        </div>
+                        <button type="button" class="btn btn-dark separate-button">Dark</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-dark">Dark</button>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+        <script>
+            function initDragAndDrop() {
+            const columnContainers = document.querySelectorAll(".column .card-list");
+
+            columnContainers.forEach(container => {
+                new Sortable(container, {
+                    group: 'column',
+                    animation: 150,
+                    onEnd: function(evt) {
+                        const item = evt.item;
+                        const targetColumn = item.closest(".column");
+                        const columnaContenedora = targetColumn.querySelector(".card-list");
+                        
+                        columnaContenedora.appendChild(item);
+                    }
+                });
+            });
+}
+
+            // Función para agregar una tarjeta a una columna
+            function agregarTarjeta(columna) {
+                const tarjetaTitulo = prompt("Ingrese el título de la tarjeta:");
+                if (tarjetaTitulo) {
+                    const nuevaTarjeta = document.createElement("div");
+                    nuevaTarjeta.className = "card";
+                    nuevaTarjeta.textContent = tarjetaTitulo;
+
+                    const columnaContenedora = columna.querySelector(".card-list");
+                    columnaContenedora.appendChild(nuevaTarjeta);
+
+                    initDragAndDrop(); // Vuelve a inicializar el drag and drop después de agregar la tarjeta
+                }
+            }
+
+            // Agregar evento a los botones "Dark" en cada columna
+            const columnas = document.querySelectorAll(".col-md-3");
+            columnas.forEach(columna => {
+                const boton = columna.querySelector(".btn-dark");
+                boton.addEventListener("click", () => {
+                    agregarTarjeta(columna);
+                });
+            });
+            initDragAndDrop();
+        </script>
+    </body>
+    </html>

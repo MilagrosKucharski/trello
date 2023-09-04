@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Trello</title>
+    <style>
+        h1 {
+            font-family: 'Helvetica Neue', sans-serif   ; /* Aplica la fuente Helvetica Neue */
+            font-weight: bold;
+            font-size: 2rem;
+            color: #880e4f;
+        }
+        body {
+            background-image: url('https://img.freepik.com/vector-gratis/fondo-acuarela-rosa-pintado-mano-detallado_1048-17039.jpg?w=2000');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .column {
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: rgba(255, 182, 193, 0.8); /* Rosa claro para la columna */
+            border-radius: 10px;
+        }
+        .card {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(255, 192, 203, 0.8); /* Rosa claro para las tarjetas */
+            border: 1px solid #f8bbd0; /* Borde rosa más oscuro */
+            color: #880e4f; /* Texto en tono oscuro para contrastar */
+            border-radius: 5px;
+    
+        }
+        .separate-button {
+            margin-top: 15px;
+        }
+        .card-list {
+            min-height: 100px;
+            background-color: rgba(255, 192, 203, 0.6); /* Rosa claro para el fondo de las tarjetas */
+            border-radius: 5px;
+            padding: 10px;/* Altura mínima para dar espacio a las tarjetas arrastradas */
+        }
+    </style>
+</head>
+<body>
+    <h1>Trello</h1>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="column">
+                    <h4 class="mb-3">Backlog</h4>
+                    <div class="card-list border rounded p-2">
+                        <!-- Tarjetas se agregarán aquí -->
+                    </div>
+                    <button type="button" class="btn btn-dark separate-button" data-column-id="1">Agregar Tarjeta</button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="column">
+                    <h4 class="mb-3">To Do</h4>
+                    <div class="card-list border rounded p-2">
+                        <!-- Tarjetas se agregarán aquí -->
+                    </div>
+                    <button type="button" class="btn btn-dark separate-button" data-column-id="2">Agregar Tarjeta</button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="column">
+                    <h4 class="mb-3">Done</h4>
+                    <div class="card-list border rounded p-2">
+                        <!-- Tarjetas se agregarán aquí -->
+                    </div>
+                    <button type="button" class="btn btn-dark separate-button" data-column-id="3">Agregar Tarjeta</button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="column">
+                    <h4 class="mb-3">Blocked</h4>
+                    <div class="card-list border rounded p-2">
+                        <!-- Tarjetas se agregarán aquí -->
+                    </div>
+                    <button type="button" class="btn btn-dark separate-button" data-column-id="4">Agregar Tarjeta</button>
+                </div>
+            </div>
+            <!-- Repite para las otras columnas -->
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script>
+        // Función para inicializar el drag and drop
+        function initDragAndDrop() {
+            const columnContainers = document.querySelectorAll(".card-list");
+            
+            columnContainers.forEach(container => {
+                new Sortable(container, {
+                    group: 'column',
+                    animation: 150,
+                    onEnd: function(evt) {
+                        const item = evt.item;
+                        const targetColumn = item.closest(".column");
+                        const newColumnId = parseInt(targetColumn.getAttribute("data-column-id")); // Nuevo ID de columna
+                        const columnaContenedora = targetColumn.querySelector(".card-list");
+                        
+                        // Actualizar el ID de columna en la tarjeta
+                        item.setAttribute("data-column-id", newColumnId);
+
+                        columnaContenedora.appendChild(item);
+                    }
+                });
+            });
+        }
+        
+        // Agregar evento a los botones "Agregar Tarjeta" en cada columna
+        const columns = document.querySelectorAll(".col-md-3");
+        columns.forEach(columna => {
+            const boton = columna.querySelector(".separate-button");
+            const columnId = parseInt(boton.getAttribute("data-column-id")); // Obtén el ID de columna del atributo data-column-id
+            boton.addEventListener("click", () => {
+                agregarTarjeta(columna, columnId);
+            });
+        });
+        var url = "http://localhost:5292"
+
+        // Función para agregar una tarjeta a una columna
+        function agregarTarjeta(columna, columnId) {
+            const tarjetaTitulo = prompt("Ingrese el título de la tarjeta:");
+            if (tarjetaTitulo) {
+                const nuevaTarjeta = document.createElement("div");
+                nuevaTarjeta.className = "card bg-light";
+                nuevaTarjeta.textContent = tarjetaTitulo;
+
+                const columnaContenedora = columna.querySelector(".card-list");
+                columnaContenedora.appendChild(nuevaTarjeta);
+
+                // Envías la solicitud POST para agregar la tarjeta al servidor
+                const cardData = { description: tarjetaTitulo };
+                fetch(`${url}/cards/${columnId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(cardData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Puedes hacer algo con la respuesta del servidor si es necesario
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+                initDragAndDrop(); // Vuelve a inicializar el drag and drop después de agregar la tarjeta
+            }
+        }
+
+        // ... El resto de tu código
+
+
+        
+        // Agregar evento a los botones "Agregar Tarjeta" en cada columna
+        const columnas = document.querySelectorAll(".col-md-3");
+        columns.forEach(columna => {
+            const boton = columna.querySelector(".separate-button");
+            boton.addEventListener("click", () => {
+                agregarTarjeta(columna);
+            });
+        });
+
+    </script>
+</body>
+</html>
